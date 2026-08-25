@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bland Masonry</title>
+    <style>
+        /* --- CSS RESET & BASE STYLES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --accent-gold: #ad2a05;
+            --accent-hover: #7e1d05;
+            --text-light: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+            
+            /* Responsive Card Dimensions */
+            --card-width: 360px;
+            --card-margin: 20px;
+            --card-height: 270px;
+        }
+
+        /* Prevent horizontal page overflow across mobile viewports */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
+            position: relative;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- HEADER & HERO --- */
+        header {
+            background-color: rgba(18, 18, 18, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            color: var(--accent-gold);
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            transition: color 0.2s ease;
+        }
+
+        nav a:hover {
+            color: var(--accent-gold);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 0rem 1rem 2rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+        }
+
+        /* --- CAROUSEL SECTION --- */
+        .carousel-section {
+            padding: 2rem 0 3rem 0;
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden; /* Strictly clips track overflow to stop mobile body scrolling */
+        }
+
+        .carousel-viewport {
+            width: 100%;
+            position: relative;
+            padding: 10px 0;
+            touch-action: pan-y; /* Allows normal vertical scrolling while dragging horizontal track */
+        }
+
+        .carousel-track {
+            display: flex;
+            width: max-content;
+            will-change: transform;
+            cursor: grab;
+        }
+
+        .carousel-track:active {
+            cursor: grabbing;
+        }
+
+        /* Carousel Navigation Buttons */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(18, 18, 18, 0.85);
+            color: var(--accent-gold);
+            border: 2px solid var(--accent-gold);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 20; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        }
+
+        .carousel-btn:hover {
+            background: var(--accent-gold);
+            color: var(--bg-dark);
+        }
+
+        .btn-left { left: 20px; }
+        .btn-right { right: 20px; }
+
+        /* Carousel Cards */
+        .carousel-card {
+            flex: 0 0 var(--card-width);
+            margin-right: var(--card-margin);
+            height: var(--card-height);
+            position: relative;
+            cursor: pointer;
+            z-index: 1;
+            user-select: none;
+        }
+
+        .carousel-card:hover {
+            z-index: 10;
+        }
+
+        .card-inner {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            transform: translateY(-50%); 
+            border-radius: 8px;
+            background-color: var(--bg-card);
+            border: 2px solid var(--border-color);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-height: var(--card-height); 
+            transition: max-height 0.8s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Hover uncrops vertically on devices with hover capabilities */
+        @media (hover: hover) {
+            .carousel-card:hover .card-inner {
+                max-height: 80vh; 
+                border-color: var(--accent-gold);
+                box-shadow: 0 10px 25px rgba(217, 59, 6, 0.25);
+            }
+            .carousel-card:hover .caption-overlay {
+                opacity: 1;
+            }
+        }
+
+        .card-inner img {
+            width: 100%;
+            height: auto; 
+            min-height: var(--card-height); 
+            object-fit: cover; 
+            object-position: center;
+            flex-shrink: 0; 
+            background-color: #000;
+            pointer-events: none;
+        }
+
+        .caption-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.80) 0%, rgba(0, 0, 0, 0.0) 60%, transparent 100%);
+            color: #fff;
+            padding: 1rem;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 5;
+        }
+
+        .caption-text {
+            font-size: 0.875rem;
+            line-height: 1.4;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        /* --- MODAL LIGHTBOX FOR FULL VIEW ON CLICK --- */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.92);
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 95vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .modal-caption {
+            margin-top: 12px;
+            color: var(--text-light);
+            text-align: center;
+            font-size: 0.95rem;
+            max-width: 800px;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 12px;
+            color: var(--text-light);
+            font-size: 2.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            z-index: 1001;
+            padding: 5px;
+        }
+
+        .close-btn:hover {
+            color: var(--accent-gold);
+        }
+
+        /* --- INFO SECTIONS (ABOUT & CONTACT) --- */
+        .info-section {
+            padding: 4rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .info-section h2 {
+            color: var(--accent-gold);
+            font-size: 1.8rem;
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-section p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.7;
+        }
+
+        .contact-methods {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.25rem;
+            margin-top: 2rem;
+        }
+
+        .contact-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1.25rem 1.75rem;
+            border-radius: 8px;
+            min-width: 280px;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .contact-card:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-2px);
+        }
+
+        .contact-card h3 {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 0.4rem;
+        }
+
+        .contact-card p {
+            color: var(--accent-gold);
+            font-size: 1.0rem;
+            margin-bottom: 0;
+            font-weight: bold;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* --- MOBILE RESPONSIVE MEDIA QUERIES --- */
+        @media (max-width: 768px) {
+            header {
+                padding: 0.8rem 1rem;
+                flex-direction: column;
+                gap: 0.6rem;
+            }
+
+            nav a {
+                margin: 0 0.75rem;
+                font-size: 0.95rem;
+            }
+
+            .hero {
+                padding: 1.5rem 1rem 1rem 1rem;
+            }
+
+            .hero h1 {
+                font-size: 1.6rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .info-section {
+                padding: 3rem 1rem;
+            }
+
+            .contact-card {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            :root {
+                --card-width: 280px;
+                --card-margin: 15px;
+                --card-height: 210px;
+            }
+
+            .carousel-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 1.1rem;
+            }
+
+            .btn-left { left: 8px; }
+            .btn-right { right: 8px; }
+
+            .caption-text {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Bland <span>Masonry</span></div>
+        <nav>
+            <a href="#portfolio">Our Work</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- PORTFOLIO SECTION -->
+        <section id="portfolio" class="carousel-section">
+            <section class="hero">
+                <h1>Craftsmanship Built to Last Generations</h1>
+                <p>Masonry Contractor in the Inland Northwest, Brick, Block (CMU), Stone, Glass Block. Residential and Commercial</p>
+                <br>
+            </section>
+            
+            <button class="carousel-btn btn-left" id="btnPrev" aria-label="Previous Project">&#10094;</button>
+            <button class="carousel-btn btn-right" id="btnNext" aria-label="Next Project">&#10095;</button>
+
+            <div class="carousel-viewport" id="carouselViewport">
+                <div class="carousel-track" id="carouselTrack">
+                    <!-- Dynamic JavaScript Insertion -->
+                </div>
+            </div>
+            <br><br><br>
+        </section>
+
+        <!-- ABOUT SECTION -->
+        <section id="about" class="info-section">
+            <h2>About Us</h2>
+            <p>With decades of experience building in Spokane, Coeur d'Alene, and throughout the Inland Northwest, Bland Masonry brings the highest quality of brick and stone work to your project. Whether commercial or residential, our expert craftsmen deliver construction that will last and impress.</p>
+        </section>
+
+        <!-- CONTACT SECTION -->
+        <section id="contact" class="info-section">
+            <h2>Get In Touch</h2>
+            <p>Ready to start planning your next masonry project? Reach out to us to get started.</p>
+            <div class="contact-methods">
+                <a href="tel:5095550198" class="contact-card">
+                    <h3>Give Us a Call</h3>
+                    <p>(509) 939-7454</p>
+                </a>
+                <a href="mailto:contact@blandmasonry.com" class="contact-card">
+                    <h3>Send an Email</h3>
+                    <p>Contact@BlandMasonry.com</p>
+                </a>
+                <a href="https://www.facebook.com/BlandMasonryInc/" class="contact-card">
+                    <h3>Connect on Facebook</h3>
+                    <p>Bland Masonry Inc.</p>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Lightbox for Clicked Full View -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <span class="close-btn" id="modalClose">&times;</span>
+            <img id="modalImg" src="" alt="Full masonry work detail">
+            <p class="modal-caption" id="modalCaption"></p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; <script>document.write(new Date().getFullYear());</script> Bland Masonry Inc. All rights reserved.</p>
+        <p>Website by Waveguide Digital</p>
+    </footer>
+
+    <script>
+        const projectData = {
+            "imgi_135_505395660_10064413790292489_1229419807271541694_n.jpg": "We did the stone veneer on the 5-mile Starbucks several years ago. Its chardonnay southern ledge stone with 10% fieldstone.",
+            "imgi_62_514459131_23980200561620577_7576484349776003915_n.jpg": "New pillar for the Spokane Tribe Casino. 8\" Block, 6'x6', and 32' tall with stone veneer",
+            "imgi_57_43050735_1950698484997434_6325671852668616704_n.jpg": "Residence with outdoor fireplace and BBQ. Bucks County Limestone",
+            "imgi_41_119380264_3396131943787407_8433099418584395687_n.jpg": "Custom stone panel installation based on homeowner concept photos.",
+            "imgi_15_496178587_1028163125957836_4591515760242215544_n.jpg": "Ground face slabs Liberty Lake.",
+            "imgi_22_477768479_962814989159317_8576927235613836951_n.jpg": "Full sized (8\") stone fireplace in new CDA residence.",
+            "imgi_23_479166968_962814962492653_5453539978085227919_n.jpg": "Veritas Stone, Kaniksu",
+            "imgi_30_475141319_951640270276789_9180510082243467147_n.jpg": "Salt brick walls we constructed in the new Yogamore studio",
+            "imgi_37_474509321_947434064030743_7343037511709836213_n.jpg": "Moonlight Roughcut veneer from Eldorado Stone. Priest Lake Idaho.",
+            "imgi_48_84182946_2788996297834311_4443799878585286656_n.jpg": "Springhill Suites at Spokane International Airport. This is a faux brick, but looks convincing.",
+            "imgi_65_513622220_23970841175889849_809648290522142440_n.jpg": "Ground faced Sandstone slabs, (16\"x2'x4\") with light black mortar, and Chestnut brick.",
+            "imgi_69_510234220_23933759312931369_3270752115212891798_n.jpg": "San Francisco Cobblefield Stone with Clinker Brick opening outdoor living area.",
+            "imgi_78_509817106_23931332809840686_1256473155812983156_n.jpg": "Decorative, inca brick, gate posts and heavy precast caps, with herring bone inlays.",
+            "imgi_87_509290674_23909290648711569_2678289850640156937_n.jpg": "Circular flagstone steps on concrete.",
+            "imgi_88_509309374_23903394235967877_379861507741967865_n.jpg": "Chardonnay Limestone with dark brown mortar on the Oil Can Henry's at Wandermere.",
+            "imgi_90_508615736_23903393969301237_987768802835068377_n.jpg": "River rock veneer we completed on the Pineacres Par 3 golf course clubhouse.",
+            "imgi_91_509186925_23903394262634541_6040676292242590771_n.jpg": "Russet Mountain Ledge Panels from Evergreen Building Products.",
+            "imgi_95_506479753_23903136425993658_8756369776687633046_n.jpg": "Mutual clinker arch with southern ledgestone posts with horizontal herringbone.","imgi_103_507701444_23892180490422585_6210963176238472909_n.jpg": "Monster outdoor fireplace for the Spokane Tribe in their new outdoor pavillion.",
+            "imgi_111_506247637_10083901251677076_1576776104389539669_n.jpg": "The Tomato Street remodel we did several years ago. Old country field stone chardonnay with taupe sills.",
+            "imgi_114_505728163_10071113279622540_8439950885461795414_n.jpg": "One we did a few years back. Two contrasting brick types, and clean lines make for a handsome brick building.",
+            "imgi_119_505115960_10069142633152938_7841316109103270611_n.jpg": "Here's a bit of an art project. European Castlestone, Mutual clinker brick window accents, and copper keystones.",
+            "imgi_121_505545535_10068616249872243_6973413186016965642_n.jpg": "Brick types: Mutual Clinkers (black) with Mutual Windsors. Why only have one brick arch in your entryway when you can have two?",
+            "imgi_107_506846663_23891266743847293_1464990254330267539_n.jpg": "We built the new Spokane International Airport Exit Sign out of 12\"CMU and cut basalt from Sunrise Stone",
+            "imgi_122_505259000_10068366026563932_1252003630401590540_n.jpg": "San Francisco Cobblefield with Sheffield brick accents.",
+            "imgi_123_505254079_10068294483237753_8078804261489429286_n.jpg": "Rumford style fireplace with River rock from Kettle Falls. The hearth is a single piece stone imbedded into the stack.",
+            "imgi_127_505366490_10067253586675176_2935840638096195242_n.jpg": "Stove cove of black ironspot brick with dark brown mortar. Warm and inviting all winter long.",
+            "imgi_128_505646085_10064979266902608_3196877179492354957_n.jpg": "Bucks County Feildstone, with ironspot coping brick treads, and rails, as a veneer over an 8\" CMU skeleton.",
+            "imgi_136_505233375_10064413553625846_3315579162776962263_n.jpg": "This is a curved glass block entry for a new office space we built a couple weeks back."
+        };
+
+        const viewport = document.getElementById('carouselViewport');
+        const track = document.getElementById('carouselTrack');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
+        
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalCaption = document.getElementById('modalCaption');
+        const modalClose = document.getElementById('modalClose');
+
+        // State Flags & Math Variables
+        let isHovering = false;
+        let isModalOpen = false;
+        let isJumping = false;
+        let isTouching = false;
+        let touchStartX = 0;
+        let touchStartScroll = 0;
+        let touchDeltaX = 0;
+        let hasSwiped = false;
+        
+        let currentScroll = 0;
+        let targetScroll = 0;
+        const scrollSpeed = 0.8;
+
+        // Dynamic Layout Calculation Properties
+        let cardWidth = 360;
+        let cardMargin = 20;
+        let cardFullWidth = 380;
+        let halfWidth = 0;
+
+        const entries = Object.entries(projectData);
+
+        function updateDimensions() {
+            const sampleCard = track.querySelector('.carousel-card');
+            if (sampleCard) {
+                const style = window.getComputedStyle(sampleCard);
+                cardWidth = parseFloat(style.width);
+                cardMargin = parseFloat(style.marginRight);
+                cardFullWidth = cardWidth + cardMargin;
+                halfWidth = entries.length * cardFullWidth;
+            }
+        }
+
+        function buildCard(filename, captionText) {
+            const card = document.createElement('div');
+            card.className = 'carousel-card';
+
+            const inner = document.createElement('div');
+            inner.className = 'card-inner';
+
+            const img = document.createElement('img');
+            img.src = `./photos/${filename}`;
+            img.alt = captionText || "Masonry project showcase";
+            img.loading = "lazy";
+
+            const overlay = document.createElement('div');
+            overlay.className = 'caption-overlay';
+
+            const caption = document.createElement('p');
+            caption.className = 'caption-text';
+            caption.textContent = captionText || "Masonry portfolio highlight.";
+
+            overlay.appendChild(caption);
+            
+            inner.appendChild(img);
+            inner.appendChild(overlay);
+            card.appendChild(inner);
+
+            card.addEventListener('mouseenter', () => { isHovering = true; });
+            card.addEventListener('mouseleave', () => { isHovering = false; });
+            
+            card.addEventListener('click', (e) => {
+                // Ignore clicks that were part of a swipe gesture
+                if (hasSwiped) return;
+
+                modalImg.src = `./photos/${filename}`;
+                modalCaption.textContent = captionText || "Masonry portfolio highlight.";
+                modal.classList.add('active');
+                isModalOpen = true;
+                isJumping = false; 
+            });
+
+            return card;
+        }
+
+        function initCarousel() {
+            // Render Set 1
+            entries.forEach(([filename, caption]) => {
+                track.appendChild(buildCard(filename, caption));
+            });
+            // Render Set 2 (for seamless looping)
+            entries.forEach(([filename, caption]) => {
+                track.appendChild(buildCard(filename, caption));
+            });
+            
+            updateDimensions();
+        }
+
+        // Main Animation Engine
+        function animateCarousel() {
+            const isPaused = isHovering || isModalOpen || isTouching;
+
+            if (isJumping) {
+                let diff = targetScroll - currentScroll;
+                currentScroll += diff * 0.12;
+
+                if (Math.abs(diff) < 0.5) {
+                    currentScroll = targetScroll;
+                    isJumping = false;
+                }
+            } else if (!isPaused) {
+                currentScroll += scrollSpeed;
+            }
+
+            // Infinite Seamless Boundary Wrapping
+            if (halfWidth > 0) {
+                if (currentScroll >= halfWidth) {
+                    currentScroll -= halfWidth;
+                    if (isJumping) targetScroll -= halfWidth;
+                    if (isTouching) touchStartScroll -= halfWidth;
+                }
+                if (currentScroll < 0) {
+                    currentScroll += halfWidth;
+                    if (isJumping) targetScroll += halfWidth;
+                    if (isTouching) touchStartScroll += halfWidth;
+                }
+            }
+
+            track.style.transform = `translateX(-${currentScroll}px)`;
+            requestAnimationFrame(animateCarousel);
+        }
+
+        // Navigation Snap Logic
+        function jumpCarousel(direction) {
+            const jumpAmount = window.innerWidth * 0.75; 
+            let baseScroll = isJumping ? targetScroll : currentScroll;
+            let roughTargetScroll = baseScroll + (direction * jumpAmount);
+            
+            let roughCenterTrackPos = roughTargetScroll + (window.innerWidth / 2);
+            let closestIndex = Math.round((roughCenterTrackPos - (cardWidth / 2)) / cardFullWidth);
+            
+            const exactCardCenter = (closestIndex * cardFullWidth) + (cardWidth / 2);
+            targetScroll = exactCardCenter - (window.innerWidth / 2);
+            
+            isJumping = true;
+        }
+
+        // Touch & Swipe Mechanics
+        viewport.addEventListener('touchstart', (e) => {
+            isTouching = true;
+            isJumping = false;
+            hasSwiped = false;
+            touchStartX = e.touches[0].clientX;
+            touchStartScroll = currentScroll;
+            touchDeltaX = 0;
+        }, { passive: true });
+
+        viewport.addEventListener('touchmove', (e) => {
+            if (!isTouching) return;
+            const currentX = e.touches[0].clientX;
+            touchDeltaX = touchStartX - currentX;
+            
+            if (Math.abs(touchDeltaX) > 5) {
+                hasSwiped = true;
+            }
+
+            currentScroll = touchStartScroll + touchDeltaX;
+        }, { passive: true });
+
+        viewport.addEventListener('touchend', () => {
+            if (!isTouching) return;
+            isTouching = false;
+            
+            // Apply slight inertia/snap on release if swiped significantly
+            if (Math.abs(touchDeltaX) > 30) {
+                jumpCarousel(touchDeltaX > 0 ? 0.4 : -0.4);
+            }
+        });
+
+        btnPrev.addEventListener('click', () => jumpCarousel(-1));
+        btnNext.addEventListener('click', () => jumpCarousel(1));
+
+        // Window Resize Listener
+        window.addEventListener('resize', updateDimensions);
+
+        // Modal Controls
+        modalClose.addEventListener('click', () => {
+            modal.classList.remove('active');
+            isModalOpen = false;
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                isModalOpen = false;
+            }
+        });
+
+        // Initialize & Run
+        initCarousel();
+        requestAnimationFrame(animateCarousel);
+    </script>
+</body>
+</html>
