@@ -1,0 +1,25 @@
+backend:
+  name: github
+  repo: waveguidedigital/blandmasonry
+  branch: main
+  base_url: https://decap-cms-oauth.vercel.app # Free public OAuth proxy endpoint
+
+media_folder: "user_photos"
+public_folder: "user_photos"
+
+collections:
+  - name: "gallery"
+    label: "Project Gallery"
+    files:
+      - file: "photos.json"
+        label: "Manage Gallery Photos"
+        name: "photos_list"
+        fields:
+          - name: "photos"
+            label: "Gallery Images (Drag to Reorder)"
+            widget: "list"
+            field:
+              name: "image"
+              label: "Upload Photo"
+              widget: "image"
+              choose_url: false

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gallery | Bland Masonry</title>
+    <style>
+        /* --- CSS RESET & BASE STYLES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --accent-gold: #ad2a05;
+            --accent-hover: #7e1d05;
+            --text-light: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
+            position: relative;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: rgba(18, 18, 18, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            color: var(--accent-gold);
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            transition: color 0.2s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--accent-gold);
+        }
+
+        /* --- PAGE HEADER --- */
+        .page-header {
+            text-align: center;
+            padding: 3rem 1rem 2rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .page-header h1 {
+            color: var(--accent-gold);
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* --- STATIC GALLERY GRID --- */
+        main {
+            flex-grow: 1;
+        }
+
+        .gallery-container {
+            width: 100%;
+            max-width: 1400px;
+            padding: 0 4rem; /* Window edge margin */
+            margin: 0 auto 4rem auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 0; /* Zero gaps between grid items */
+        }
+
+        .gallery-item {
+            position: relative;
+            background-color: #000;
+            overflow: hidden;
+            cursor: pointer;
+            aspect-ratio: 4 / 3;
+        }
+
+        /* Red border overlay rendered on top of the image */
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 3px solid var(--accent-gold);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .gallery-item:hover::after {
+            opacity: 1;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            transition: transform 0.4s ease, filter 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        /* --- MODAL LIGHTBOX --- */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.92);
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 95vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 12px;
+            color: var(--text-light);
+            font-size: 2.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            z-index: 1001;
+            padding: 5px;
+        }
+
+        .close-btn:hover {
+            color: var(--accent-gold);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* --- MOBILE RESPONSIVE MEDIA QUERIES --- */
+        @media (max-width: 768px) {
+            header {
+                padding: 0.8rem 1rem;
+                flex-direction: column;
+                gap: 0.6rem;
+            }
+
+            nav a {
+                margin: 0 0.75rem;
+                font-size: 0.95rem;
+            }
+
+            .gallery-container {
+                padding: 0 1rem;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Bland <span>Masonry</span></div>
+        <nav>
+            <a href="index.html#portfolio">Our Work</a>
+            <a href="index.html#about">About</a>
+            <a href="index.html#contact">Contact</a>
+            <a href="gallery.html" class="active">Gallery</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <h1>Project Gallery</h1>
+            <p>Browse a selection of our residential and commercial masonry work. <br>Like what you see?
+                <a href="index.html#contact" style="color: #ad2a05">
+                    Contact us</a> for a quote today.</p>
+        </section>
+
+        <section class="gallery-container" id="galleryContainer"></section>
+    </main>
+
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <span class="close-btn" id="modalClose">&times;</span>
+            <img id="modalImg" src="" alt="Expanded masonry project view">
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; <script>document.write(new Date().getFullYear());</script> Bland Masonry Inc. All rights reserved.</p>
+        <p><a href="https://www.waveguidedigital.com" style="text-decoration: none; color: inherit">Website by Waveguide Digital</a></p>
+    </footer>
+
+    <script>
+        const galleryContainer = document.getElementById('galleryContainer');
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalClose = document.getElementById('modalClose');
+
+        async function loadAndBuildGallery() {
+            try {
+                // Fetch the JSON list of photos generated by Decap CMS
+                const response = await fetch('./photos.json');
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                
+                // Clear the container just in case
+                galleryContainer.innerHTML = '';
+                
+                if (data.photos && data.photos.length > 0) {
+                    data.photos.forEach(photoPath => {
+                        // Ensure the path works cleanly whether CMS prepends a slash or not
+                        const cleanPath = photoPath.startsWith('/') ? photoPath.substring(1) : photoPath;
+
+                        const item = document.createElement('div');
+                        item.className = 'gallery-item';
+
+                        const img = document.createElement('img');
+                        img.src = `./${cleanPath}`;
+                        img.alt = "Masonry project showcase";
+                        img.loading = "lazy";
+
+                        item.appendChild(img);
+
+                        // Open expanded image lightbox on click
+                        item.addEventListener('click', () => {
+                            modalImg.src = `./${cleanPath}`;
+                            modal.classList.add('active');
+                        });
+
+                        galleryContainer.appendChild(item);
+                    });
+                } else {
+                    galleryContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1;">No photos available.</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching gallery photos:', error);
+                galleryContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1;">Failed to load photos.</p>';
+            }
+        }
+
+        // Lightbox Modal Controls
+        modalClose.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        // Initialize gallery fetch
+        loadAndBuildGallery();
+    </script>
+</body>
+</html>
