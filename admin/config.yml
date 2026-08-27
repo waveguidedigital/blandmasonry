@@ -1,8 +1,6 @@
 backend:
-  name: github
-  repo: waveguidedigital/blandmasonry
+  name: git-gateway
   branch: main
-  base_url: https://decap-cms-oauth.vercel.app # Free public OAuth proxy endpoint
 
 media_folder: "user_photos"
 public_folder: "user_photos"
