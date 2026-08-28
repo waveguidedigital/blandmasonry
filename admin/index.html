@@ -11,28 +11,44 @@
 
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   <script>
-    const previewStyles = `
-      /* Target the exact preview container you found */
-      div[class*="WidgetPreviewContainer"] {
-        display: flex;
-        justify-content: center;
-        background-color: #1a1a1a;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 10px;
-      }
+    // Create a custom React component using Decap's built-in 'h' function
+    const GalleryPreview = createClass({
+      render: function() {
+        // Fetch the list of photos from the left-hand editor
+        const photos = this.props.entry.getIn(['data', 'photos']);
+        
+        if (!photos || photos.size === 0) {
+          return h('div', {style: { padding: '20px', color: '#666' }}, "Upload photos on the left to see them here.");
+        }
 
-      /* Force the image to shrink and fit sensibly */
-      div[class*="WidgetPreviewContainer"] img {
-        max-width: 100% !important;
-        height: auto !important;
-        max-height: 350px !important; 
-        object-fit: contain !important;
+        // Map over the photos and output a grid of square thumbnails
+        const imageElements = photos.map((photo, index) => {
+          const imageUrl = photo.get('image');
+          if (!imageUrl) return null;
+
+          return h('div', { key: index, style: { overflow: 'hidden', borderRadius: '8px', backgroundColor: '#eee' } },
+            h('img', {
+              // getAsset ensures the image loads even if it hasn't been pushed to GitHub yet
+              src: this.props.getAsset(imageUrl).toString(),
+              style: { width: '100%', height: '150px', objectFit: 'cover', display: 'block' }
+            })
+          );
+        });
+
+        // Return the grid container
+        return h('div', {
+          style: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+            gap: '15px',
+            padding: '20px'
+          }
+        }, imageElements);
       }
-    `;
-    
-    // Register the raw CSS string into Decap's iframe
-    CMS.registerPreviewStyle(previewStyles, { raw: true });
+    });
+
+    // Tell Decap to use this template for the 'photos_list' file configuration
+    CMS.registerPreviewTemplate("photos_list", GalleryPreview);
   </script>
   
   <script>
