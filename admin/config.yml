@@ -1,23 +1,34 @@
 backend:
   name: git-gateway
   branch: main
+  repo: waveguidedigital/blandmasonry
+
+
+logo_url: "https://blandmasonry.com/blandmasonry.png"
+search: false
 
 media_folder: "user_photos"
 public_folder: "user_photos"
 
 collections:
   - name: "gallery"
-    label: "Project Gallery"
+    label: "Website Content"
+    description: "Manage the content that appears on your live website."
+    editor:
+      preview: false 
     files:
       - file: "photos.json"
-        label: "Manage Gallery Photos"
+        label: "Project Gallery"
         name: "photos_list"
         fields:
           - name: "photos"
             label: "Gallery Images (Drag to Reorder)"
             widget: "list"
+            collapsed: true 
+            minimize_collapsed: true 
+            label_singular: "Photo" # Changes the default "Add Photos" button text
             field:
               name: "image"
-              label: "Upload Photo"
+              label: "Photo"
               widget: "image"
               choose_url: false
