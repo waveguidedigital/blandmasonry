@@ -3,8 +3,9 @@ backend:
   branch: main
   repo: waveguidedigital/blandmasonry
 
-
-logo_url: "https://blandmasonry.com/blandmasonry.png"
+logo:
+  src: https://blandmasonry.com/blandmasonry.png
+  show_in_header: true
 search: false
 
 media_folder: "user_photos"
