@@ -4,6 +4,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager | Bland Masonry</title>
+  
+  <style>
+    /* Target Decap CMS image widget previews */
+    [data-slate-object] img, 
+    div[class*="imageWidget"] img,
+    img[src^="blob:"] {
+      object-fit: contain !important;
+      background-color: #1a1a1a; /* Adds a clean dark letterbox background */
+    }
+  </style>
+
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
