@@ -4,34 +4,36 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager | Bland Masonry</title>
-  
-  <style>
-    /* Force Decap CMS thumbnail containers and preview images to scale cleanly */
-    div[class^="image-wrapper"], 
-    div[class*="image-wrapper"],
-    span[class^="image-wrapper"],
-    span[class*="image-wrapper"],
-    img[src^="blob:"],
-    img[alt*="image"] {
-      max-height: 250px !important;
-      object-fit: contain !important;
-      background-color: #1a1a1a !important;
-    }
-
-    /* Target the list widget thumbnail view specifically */
-    ul [class*="image-wrapper"] img,
-    div[data-slate-editor] img {
-      width: 100% !important;
-      height: auto !important;
-      object-fit: contain !important;
-    }
-  </style>
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
 
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script>
+    const previewStyles = `
+      /* Target the exact preview container you found */
+      div[class*="WidgetPreviewContainer"] {
+        display: flex;
+        justify-content: center;
+        background-color: #1a1a1a;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+
+      /* Force the image to shrink and fit sensibly */
+      div[class*="WidgetPreviewContainer"] img {
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: 350px !important; 
+        object-fit: contain !important;
+      }
+    `;
+    
+    // Register the raw CSS string into Decap's iframe
+    CMS.registerPreviewStyle(previewStyles, { raw: true });
+  </script>
   
   <script>
     if (window.netlifyIdentity) {
