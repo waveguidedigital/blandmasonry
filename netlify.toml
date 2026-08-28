@@ -1,0 +1,10 @@
+[build]
+  publish = "."
+  command = ""
+
+# Intercept Netlify Identity email tokens at the root and send them to /admin/
+[[redirects]]
+  from = "/*"
+  to = "/admin/:splat"
+  status = 200
+  force = false
